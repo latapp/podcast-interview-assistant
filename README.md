@@ -41,7 +41,7 @@ LLM_MODEL_BASE_URL=url_del_modelo
 1. Coloca tu archivo de audio/video en el directorio del proyecto
 2. Ejecuta el script principal:
 ```bash
-python main.py
+python main.py <file path>
 ```
 
 3. El programa generará un archivo `output.json` con las preguntas generadas
