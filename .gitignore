@@ -1,0 +1,4 @@
+.venv
+output.json
+tests
+__pycache__
