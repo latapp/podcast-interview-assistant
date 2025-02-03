@@ -29,9 +29,9 @@ cd podcast_interview_assistant
 pip install -r requirements.txt
 ```
 
-3. Configurar variables de entorno:
-Crear un archivo `.env` en la raíz del proyecto:
-```env
+3. Configurar variables de configuracion en el archivo config:
+
+```python
 LLM_MODEL_API_KEY=tu_api_key
 LLM_MODEL_BASE_URL=url_del_modelo
 ```
