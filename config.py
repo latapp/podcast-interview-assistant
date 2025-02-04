@@ -12,10 +12,13 @@ MODEL_BASE_URL = None #if None, use the default url from openai
 
 ####   TRANSCRIPTOR SETTINGS   ####
 
-FRAGMENT_DURATION = 300
+FRAGMENT_DURATION = 180
+LOCAL_MODE = False
+
+# region the local mode disable this settings
 WHISPER_MODEL = "large"
 DEVICE = "cuda" # "cuda" or "cpu"
-
+# endregion
 
 ####   LLM SETTINGS   ####
 

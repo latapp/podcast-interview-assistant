@@ -1,19 +1,28 @@
 from progress.bar import ChargingBar
 from moviepy.editor import AudioFileClip
 from moviepy.editor import VideoFileClip
-import whisper
-import numpy as np
 import os
 import sys
 import tempfile
 # from rich import print
-from config import WHISPER_MODEL , FRAGMENT_DURATION, DEVICE
+from config import WHISPER_MODEL , FRAGMENT_DURATION, DEVICE, LOCAL_MODE, MODEL_API_KEY
+
+if LOCAL_MODE:
+    import whisper #type: ignore
+else:
+    from openai import OpenAI
+    from openai.types.audio import Transcription
 
 class Transcriptor:
     def __init__(self, initial_prompt=""):
         self.initial_prompt = initial_prompt
         self.device_type = DEVICE
-        self.whisper = whisper.load_model(WHISPER_MODEL, self.device_type)
+        if LOCAL_MODE:
+            self.whisper = whisper.load_model(WHISPER_MODEL, self.device_type)
+        else:
+            self.whisper = OpenAI(
+                api_key=MODEL_API_KEY
+            )
         self.temp_dir = tempfile.mkdtemp()
     
     def extract_audio(self, video_path) -> VideoFileClip:
@@ -65,8 +74,17 @@ class Transcriptor:
             bar = ChargingBar("Transcribiendo fragmentos", max=len(fragment_files))
             bar.start()
             for fragment_path in fragment_files:
-                result = self.whisper.transcribe(fragment_path, initial_prompt=f"{self.initial_prompt}, el podcast es chileno")
-                text_transcription.append(result["text"])
+                if LOCAL_MODE: 
+                    result = self.whisper.transcribe(fragment_path, initial_prompt=f"{self.initial_prompt}, el podcast es chileno")
+                    text_transcription.append(result["text"])
+                else:
+                    file = open(fragment_path, "rb")
+                    result:Transcription = self.whisper.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=file,
+                    )
+
+                    text_transcription.append(result.text)
                 bar.next()
             bar.finish()
             return text_transcription
