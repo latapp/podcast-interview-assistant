@@ -19,7 +19,7 @@ class Transcriptor:
     def extract_audio(self, video_path) -> VideoFileClip:
         return VideoFileClip(video_path).audio
     
-    def fragment_audio(self, audio):
+    def fragment_audio(self, audio) -> list[str]:
         """
         fragmenta el audio en fragmentos de maximo 20 segundos y los guarda temporalmente
         """
@@ -63,10 +63,12 @@ class Transcriptor:
             print(f"Fragmentos generados: {len(fragment_files)}")
             text_transcription = []
             bar = ChargingBar("Transcribiendo fragmentos", max=len(fragment_files))
+            bar.start()
             for fragment_path in fragment_files:
                 result = self.whisper.transcribe(fragment_path, initial_prompt=f"{self.initial_prompt}, el podcast es chileno")
                 text_transcription.append(result["text"])
                 bar.next()
+            bar.finish()
             return text_transcription
         finally:
             self.cleanup()

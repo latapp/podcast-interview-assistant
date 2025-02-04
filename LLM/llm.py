@@ -1,7 +1,7 @@
 from openai import OpenAI
 from rich import print
 from pydantic import BaseModel
-from config import BASE_PROMPT, LLM_MODEL, LLM_MODEL_API_KEY, LLM_MODEL_BASE_URL
+from config import BASE_PROMPT, LLM_MODEL, MODEL_API_KEY, MODEL_BASE_URL
 
 class ModelResponse(BaseModel):
     questions: list[str]
@@ -11,8 +11,8 @@ class LLM:
     def __init__(self):
         self.model = LLM_MODEL
         self.openai = OpenAI(
-            api_key=LLM_MODEL_API_KEY,
-            base_url=LLM_MODEL_BASE_URL
+            api_key=MODEL_API_KEY,
+            base_url=MODEL_BASE_URL
         )
     
     def generate(self, text: str | list[str]) -> str:

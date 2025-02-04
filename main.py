@@ -8,6 +8,7 @@ from utils import TimeChecker
 if len(argv) <= 1:
     print("INGRESE EL ARCHIVO DE AUDIO A TRANSCRIBIR\n\n")
     print("Usage: python main.py <audio_file>")
+    exit(1)
     
 description_podcast = input("Ingrese una breve descripción del podcast: ")
 
@@ -34,9 +35,7 @@ def main():
     except Exception as e:
         print(e)
     finally:
-        print("Cleaning up")
         time_checker.stop()
-        time_checker._print()
 
 if __name__ == "__main__":
     main()
