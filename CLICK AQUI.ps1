@@ -15,3 +15,6 @@ if ($FileDialog.ShowDialog() -eq "OK") {
 } else {
     Write-Host "No se seleccionó ningún archivo."
 }
+
+$FileName = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
+notepad "./output/preguntas $Filename.txt"
