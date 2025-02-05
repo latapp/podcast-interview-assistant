@@ -90,8 +90,3 @@ class Transcriptor:
             return text_transcription
         finally:
             self.cleanup()
-
-if __name__ == "__main__":
-    transcriptor = Transcriptor()
-    result = transcriptor.transcribe("transcription/bernardita-ruffineli---klein-podcast-1.mp4")
-    print(result)

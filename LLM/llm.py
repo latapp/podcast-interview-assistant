@@ -31,8 +31,3 @@ class LLM:
         )
 
         return completion.choices[0].message.content
-
-if __name__ == "__main__":
-    llm = LLM()
-    result = llm.generate("Hola soy un entrevistado, soy programador")
-    print(result)
