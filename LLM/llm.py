@@ -1,5 +1,4 @@
 from openai import OpenAI
-from rich import print
 from pydantic import BaseModel
 from config import BASE_PROMPT, LLM_MODEL, MODEL_API_KEY, MODEL_BASE_URL
 
