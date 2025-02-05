@@ -89,4 +89,4 @@ class Transcriptor:
             bar.finish()
             return text_transcription
         finally:
-            self.cleanup()
+            pass

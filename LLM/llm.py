@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from config import BASE_PROMPT, LLM_MODEL, MODEL_API_KEY, MODEL_BASE_URL
 
 class ModelResponse(BaseModel):
+    opinion: str
     questions: list[str]
 
 

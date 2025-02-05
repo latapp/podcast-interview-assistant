@@ -1,4 +1,4 @@
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 
 Add-Type -AssemblyName System.Windows.Forms
 
@@ -15,4 +15,3 @@ if ($FileDialog.ShowDialog() -eq "OK") {
 } else {
     Write-Host "No se seleccionó ningún archivo."
 }
-Start-Sleep
