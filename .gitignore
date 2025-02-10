@@ -1,6 +1,9 @@
 .venv
+venv
 output.json
 tests
 __pycache__
 .env
 .output
+output
+preoutput

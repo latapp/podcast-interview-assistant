@@ -1,7 +1,7 @@
 import json
 import os 
 from LLM import LLM
-from transcription import Transcriptor
+from transcriptor_srt import TranscriptionProcessor as Transcriptor
 from sys import argv
 from utils import TimeChecker
 
@@ -15,24 +15,36 @@ if len(argv) <= 1:
 description_podcast = "Desde La Araucanía, Camilo Klein - fundador del Biergarten-, entrevista a diversos exponentes del ámbito cultural, científico, político y empresarial"
 filename = argv[1].split("/")[-1].split(".")[0]
 
-def main():
+def main(output_path="output", filename=filename, description_podcast=description_podcast):
     time_checker = TimeChecker()
     # Comienza a contar el tiempo
-    time_checker.start()
     transcriptor = Transcriptor(
-        description_podcast
+        initial_prompt=description_podcast,
+        model_size='turbo',
+        language='Spanish',
+        num_speakers=2,
+        speakers=None
+
     )
     llm = LLM()
     try:
         # Transcribe the audio
         print("making transcription...")
+        time_checker.start()
+
         transcription = transcriptor.transcribe(argv[1])
+        time_checker.stop()
+
         # Generate questions
         print("creating questions...")
-        response = llm.generate(transcription)
+        response = llm.generate(transcription["text"])
         json_data = json.loads(response)
         questions = json_data["questions"]
-        with open(f"output/preguntas {filename}.txt", "w") as f:
+        with open(f"{output_path}/transcripcion {filename}.txt", "w") as f:
+            f.write(f"Podcast: {description_podcast}\n\n")
+            f.write(f"Transcripcion: {" ".join(transcription)}\n\n\n")
+        
+        with open(f"{output_path}/preguntas {filename}.txt", "w") as f:
 
             f.write(f"Podcast: {description_podcast}\n\n")
             f.write(f"Opinion: {json_data['opinion']}\n\n\n")
@@ -44,7 +56,6 @@ def main():
     except Exception as e:
         print(e)
     finally:
-        time_checker.stop()
         transcriptor.cleanup()
 
 if __name__ == "__main__":

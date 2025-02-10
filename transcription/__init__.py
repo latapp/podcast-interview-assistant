@@ -1,1 +1,0 @@
-from .transcriptor import Transcriptor
