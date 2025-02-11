@@ -10,10 +10,7 @@ import wave
 from openai import OpenAI
 import contextlib
 import numpy as np
-from pyannote.audio import Audio
-from pyannote.core import Segment
-from pyannote.audio.pipelines.speaker_verification import PretrainedSpeakerEmbedding
-from sklearn.cluster import AgglomerativeClustering
+
 import config
 
 class TranscriptionProcessor:
@@ -24,12 +21,17 @@ class TranscriptionProcessor:
         self.model_size = model_size
         self.language = language
         self.num_speakers = num_speakers
-        self.audio = Audio()
         self.temp_dir = tempfile.mkdtemp()
         self.setup_whisper_model()
 
     # Inicializa el modelo de embedding para reconocimiento de hablantes
     def setup_embedding_model(self):
+        from pyannote.audio import Audio #type: ignore
+        from pyannote.core import Segment #type: ignore
+        from pyannote.audio.pipelines.speaker_verification import PretrainedSpeakerEmbedding #type: ignore
+        from sklearn.cluster import AgglomerativeClustering #type: ignore
+
+        self.audio = Audio()
         self.embedding_model = PretrainedSpeakerEmbedding(
             "speechbrain/spkrec-ecapa-voxceleb",
             device=torch.device("cuda")
@@ -38,7 +40,7 @@ class TranscriptionProcessor:
     # Configura el modelo de Whisper según el idioma y tamaño
     def setup_whisper_model(self):
         if self.local_mode:
-            self.model = whisper.load_model(self.model_size)
+            self.model = whisper.load_model(self.model_size, device="cuda")
         else:
             self.model = OpenAI(
                 api_key=config.MODEL_API_KEY,
@@ -53,6 +55,7 @@ class TranscriptionProcessor:
             output_path = 'audio.wav'
             subprocess.call(['ffmpeg', '-i', input_path,"-ac","1", output_path, '-y'])
             return output_path
+            
         except subprocess.CalledProcessError as e:
             print(f"[Error convert_to_wav] No se pudo convertir el archivo {input_path} a WAV. {e}")
             raise
@@ -72,7 +75,7 @@ class TranscriptionProcessor:
     def segment_embedding(self, segment, audio_path, duration):
         start = segment["start"]
         end = min(duration, segment["end"])
-        clip = Segment(start, end)
+        clip = Segment(start, end) #type: ignore
         waveform, _ = self.audio.crop(audio_path, clip)
         return self.embedding_model(waveform[None])
 
@@ -133,8 +136,9 @@ class TranscriptionProcessor:
             print(f"[Error cleanup] Falla al limpiar archivos temporales. {e}")
             raise
     # Procesa el archivo de audio completo
-    def getting_srt(self, wav_path, segments):
+    def get_srt(self, wav_path, segments):
         try:
+            self.setup_embedding_model()
             
             duration = self.get_audio_duration(wav_path)
             
@@ -145,7 +149,7 @@ class TranscriptionProcessor:
             
             # Clustering de hablantes
             embeddings = np.nan_to_num(embeddings)
-            clustering = AgglomerativeClustering(self.num_speakers).fit(embeddings)
+            clustering = AgglomerativeClustering(self.num_speakers).fit(embeddings) #type: ignore
             
             # Asignación de hablantes
             for i, segment in enumerate(segments):
@@ -184,8 +188,9 @@ class TranscriptionProcessor:
                 text = segment["text"].strip()
                 f.write(f"{speaker} {start_time}: {text}\n")
     
-    # Guarda la transcripción en un archivo SRT
     def save_transcript_srt(self, segments, output_file="transcript.srt"):
+    # Guarda la transcripción en un archivo SRT
+
         with open(output_file, "w", encoding='utf-8') as f:
             for i, segment in enumerate(segments):
                 start_time = self.format_time(segment['start'])

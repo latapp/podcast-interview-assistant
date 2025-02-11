@@ -8,8 +8,10 @@ class ModelResponse(BaseModel):
 
 
 class LLM:
-    def __init__(self):
-        self.model = LLM_MODEL
+    def __init__(self, llm_model: str = LLM_MODEL, distribuited: str = "openai"):
+        self.dist = distribuited
+        self.model = llm_model
+        
         self.openai = OpenAI(
             api_key=MODEL_API_KEY,
             base_url=MODEL_BASE_URL
@@ -20,7 +22,6 @@ class LLM:
             text = [text]
         elif type(text) != list:
             raise ValueError("El parametro text debe ser un string o una lista de strings")
-
         completion =  self.openai.beta.chat.completions.parse(
             model=self.model,
             messages=[
@@ -31,3 +32,4 @@ class LLM:
         )
 
         return completion.choices[0].message.content
+
